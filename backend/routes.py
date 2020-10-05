@@ -13,3 +13,21 @@ def listar_casacos():
     resultado = jsonify(casacos_em_json)
     resultado.headers.add("Access-Control-Allow-Origin", "*")
     return resultado
+
+@app.route("/incluir_casaco", methods=["post"])
+def incluir_casaco():
+    resposta = jsonify({"resultado": "ok", "detalhes": "ok"})
+    dados = request.get_json()
+
+    try:
+        novo_casaco = Casaco(**dados)
+        db.session.add(novo_casaco)
+        db.session.commit()
+
+    except Exception as e:
+        
+        resposta = jsonify({"resultado": "error", "detalhes": str(e)})
+
+    resposta.headers.add("Access-Control-Allow-Origin", "*")
+
+    return resposta

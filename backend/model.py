@@ -26,7 +26,7 @@ if __name__ == "__main__":
 
     db.create_all()
 
-    casaco1 = Casaco(marca = "adidas", cor = "branco", 
+    casaco1 = Casaco(marca = "Adidas", cor = "branco", 
         tamanho = "M")
     casaco2 = Casaco(marca = "Nike", cor = "preto", 
         tamanho = "G")        
@@ -34,6 +34,3 @@ if __name__ == "__main__":
     db.session.add(casaco1)
     db.session.add(casaco2)
     db.session.commit()
-    
-    print(casaco2)
-    print(casaco2.json())
