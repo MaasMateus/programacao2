@@ -31,3 +31,20 @@ def incluir_casaco():
     resposta.headers.add("Access-Control-Allow-Origin", "*")
 
     return resposta
+
+
+@app.route("/excluir_casaco/<int:id_casaco>", methods=["delete"])
+def excluir_casaco(id_casaco):
+    resposta = jsonify({"resultado": "ok", "detalhes": "ok"})
+
+    try:
+        Casaco.query.filter(Casaco.id == id_casaco).delete()
+        db.session.commit()
+
+    except Exception as e:
+        
+        resposta = jsonify({"resultado": "error", "detalhes": str(e)})
+
+    resposta.headers.add("Access-Control-Allow-Origin", "*")
+
+    return resposta

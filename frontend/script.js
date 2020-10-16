@@ -17,12 +17,17 @@ $(function() { // quando o documento estiver pronto/carregado
             // tornar a tabela visível
             mostrar_conteudo("tabelaCasacos");      
             // percorrer a lista de casacoss retornadas; 
-            for (var i in casacos) { //i vale a posição no vetor
-                lin = '<tr>' + // elabora linha com os dados da casaco
-                '<td>' + casacos[i].marca + '</td>' + 
-                '<td>' + casacos[i].cor + '</td>' + 
-                '<td>' + casacos[i].tamanho + '</td>' + 
-                '</tr>';
+            for (var i in casacos) {
+                lin = `<tr id="linha_${casacos[i].id}">
+                <td> ${casacos[i].marca}  </td> 
+                <td> ${casacos[i].cor}  </td>
+                <td> ${casacos[i].tamanho}  </td>
+                <td>
+                    <a href=# id="${casacos[i].id}" class="excluir_casaco">
+                        <p class="badge badge-danger">Excluir</p>
+                    </a>
+                </td>
+                </tr>`;
                 // adiciona a linha no corpo da tabela
                 $('#corpoTabelaCasacos').append(lin);
             }
@@ -94,6 +99,29 @@ $(function() { // quando o documento estiver pronto/carregado
         }
     });
 
+    $(document).on("click", ".excluir_casaco", function() {
+        var idCasaco = $(this).attr("id");
+    
+        $.ajax({
+          url: `http://localhost:5000/excluir_casaco/${idCasaco}`,
+          type: "DELETE",
+          dataType: 'json',
+          success: excluirCasaco,
+          error: deleteError
+        });
+    
+        function excluirCasaco(retorno) {
+          if (retorno.resultado == "ok") {
+            $(`#linha_${idCasaco}`).fadeOut();
+          } else {
+            alert(`ERRO: ${retorno.resultado}: ${retorno.datalhes}`);
+          }
+        }
+    
+        function deleteError(retorno) {
+          alert("Erro ¯|_(ツ)_/¯");
+        }
+      });
     // a função abaixo é executada quando a página abre
     mostrar_conteudo("conteudoInicial");
 });
