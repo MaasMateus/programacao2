@@ -1,107 +1,147 @@
-$(function() { // quando o documento estiver pronto/carregado
-    
-    // função para exibir casacoss na tabela
+$(function() {
     function exibir_casacos() {
         $.ajax({
             url: 'http://localhost:5000/listar_casacos',
             method: 'GET',
-            dataType: 'json', // os dados são recebidos no formato json
-            success: listar, // chama a função listar para processar o resultado
+            dataType: 'json',
+            success: listar,
             error: function() {
                 alert("erro ao ler dados, verifique o backend");
             }
         });
         function listar (casacos) {
-            // esvaziar o corpo da tabela
             $('#corpoTabelaCasacos').empty();
-            // tornar a tabela visível
-            mostrar_conteudo("tabelaCasacos");      
-            // percorrer a lista de casacoss retornadas; 
+            mostrar_conteudo("casacos");
             for (var i in casacos) {
                 lin = `<tr id="linha_${casacos[i].id}">
-                <td> ${casacos[i].marca}  </td> 
-                <td> ${casacos[i].cor}  </td>
-                <td> ${casacos[i].tamanho}  </td>
+                <td> ${casacos[i].marca} </td>
+                <td> ${casacos[i].cor} </td>
+                <td> ${casacos[i].tamanho} </td>
                 <td>
                     <a href=# id="${casacos[i].id}" class="excluir_casaco">
                         <p class="badge badge-danger">Excluir</p>
                     </a>
                 </td>
                 </tr>`;
-                // adiciona a linha no corpo da tabela
                 $('#corpoTabelaCasacos').append(lin);
             }
         }
     }
 
-    // função que mostra um conteúdo e esconde os outros
-    function mostrar_conteudo(identificador) {
-        // esconde todos os conteúdos
-        $("#tabelaCasaco").addClass('invisible');
-        $("#conteudoInicial").addClass('invisible');
-        // torna o conteúdo escolhido visível
-        $("#"+identificador).removeClass('invisible');      
+    function exibir_pessoas() {
+        $.ajax({
+            url: 'http://localhost:5000/listar_pessoas',
+            method: 'GET',
+            dataType: 'json',
+            success: listar,
+            error: function() {
+                alert("erro ao ler dados, verifique o backend");
+            }
+        });
+        function listar(pessoas) {
+            $('#corpoTabelaPessoas').empty();
+            mostrar_conteudo("pessoas");
+            for (var i in pessoas) {
+                lin = `<tr id="linha_${pessoas[i].id}">
+                <td> ${pessoas[i].nome} </td>
+                <td> ${pessoas[i].idade} </td>
+                </tr>`;
+                $('#corpoTabelaPessoas').append(lin);
+            }
+        }
     }
 
-    // código para mapear o click do link Listar
+    function exibir_armarios() {
+        $.ajax({
+            url: 'http://localhost:5000/listar_armarios',
+            method: 'GET',
+            dataType: 'json',
+            success: listar,
+            error: function() {
+                alert("erro ao ler dados, verifique o backend");
+            }
+        });
+        function listar(armarios) {
+            $('#corpoTabelaArmarios').empty();
+            mostrar_conteudo("armarios");
+            for (var i in armarios) {
+                lin = `<tr id="linha_${armarios[i].id}">
+                <td> ${armarios[i].capacidade} </td>
+                <td> ${armarios[i].material} </td>
+                <td> ${armarios[i].cor} </td>
+                <td> ${armarios[i].casaco.marca} </td>
+                <td> ${armarios[i].casaco.cor} </td>
+                <td> ${armarios[i].casaco.tamanho} </td>
+                <td> ${armarios[i].pessoa.nome} </td>
+                <td> ${armarios[i].pessoa.idade} </td>
+                </tr>`;
+                $('#corpoTabelaArmarios').append(lin);
+            }
+        }
+    }
+
+    function mostrar_conteudo(identificador) {
+        $("#casacos").addClass('d-none');
+        $("#pessoas").addClass('d-none');
+        $("#armarios").addClass('d-none');
+        $("#conteudoInicial").addClass('d-none');
+        $("#"+identificador).removeClass('d-none');
+    }
+
     $(document).on("click", "#linkListarCasacos", function() {
         exibir_casacos();
     });
-    
-    // código para mapear click do link Inicio
+
+    $(document).on("click", "#linkListarPessoas", function() {
+        exibir_pessoas();
+    });
+
+    $(document).on("click", "#linkListarArmarios", function() {
+        exibir_armarios();
+    });
+
     $(document).on("click", "#linkInicio", function() {
         mostrar_conteudo("conteudoInicial");
     });
 
-    // código para mapear click do botão incluir casaco
     $(document).on("click", "#btIncluirCasaco", function() {
-        //pegar dados da tela
         marca = $("#campoMarca").val();
         cor = $("#campoCor").val();
         tamanho = $("#campoTamanho").val();
-        // preparar dados no formato json
         var dados = JSON.stringify({ marca: marca, cor: cor, tamanho: tamanho});
-        // fazer requisição para o back-end
         $.ajax({
             url: 'http://localhost:5000/incluir_casaco',
             type: 'POST',
-            dataType: 'json', // os dados são recebidos no formato json
-            contentType: 'application/json', // tipo dos dados enviados
-            data: dados, // estes são os dados enviados
-            success: casacoIncluido, // chama a função listar para processar o resultado
+            dataType: 'json',
+            contentType: 'application/json',
+            data: dados,
+            success: casacoIncluido,
             error: erroAoIncluir
         });
         function casacoIncluido (retorno) {
-            if (retorno.resultado == "ok") { // a operação deu certo?
-                // informar resultado de sucesso
+            if (retorno.resultado == "ok") {
                 alert("casaco incluído com sucesso!");
-                // limpar os campos
                 $("#campoMarca").val("");
                 $("#campoCor").val("");
                 $("#campoTamanho").val("");
             } else {
-                // informar mensagem de erro
                 alert(retorno.resultado + ":" + retorno.detalhes);
-            }            
+            }
         }
         function erroAoIncluir (retorno) {
-            // informar mensagem de erro
             alert("ERRO: "+retorno.resultado + ":" + retorno.detalhes);
         }
     });
 
-    // código a ser executado quando a janela de inclusão de casacos for fechada
     $('#modalIncluirCasaco').on('hide.bs.modal', function (e) {
-        // se a página de listagem não estiver invisível
-        if (! $("#tabelaCasacos").hasClass('invisible')) {
-            // atualizar a página de listagem
+        if (! $("#tabelaCasacos").hasClass('d-none')) {
             exibir_casacos();
         }
     });
 
     $(document).on("click", ".excluir_casaco", function() {
         var idCasaco = $(this).attr("id");
-    
+
         $.ajax({
           url: `http://localhost:5000/excluir_casaco/${idCasaco}`,
           type: "DELETE",
@@ -109,7 +149,7 @@ $(function() { // quando o documento estiver pronto/carregado
           success: excluirCasaco,
           error: deleteError
         });
-    
+
         function excluirCasaco(retorno) {
           if (retorno.resultado == "ok") {
             $(`#linha_${idCasaco}`).fadeOut();
@@ -117,11 +157,10 @@ $(function() { // quando o documento estiver pronto/carregado
             alert(`ERRO: ${retorno.resultado}: ${retorno.datalhes}`);
           }
         }
-    
+
         function deleteError(retorno) {
           alert("Erro ¯|_(ツ)_/¯");
         }
       });
-    // a função abaixo é executada quando a página abre
     mostrar_conteudo("conteudoInicial");
 });
