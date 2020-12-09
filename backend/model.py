@@ -7,9 +7,6 @@ class Casaco(db.Model):
     cor = db.Column(db.String(254))
     tamanho = db.Column(db.String(254))
 
-    armario_casaco = db.relationship("Armario",
-                                     back_populates="casaco_armario")
-
 
     def __str__(self):
         return f"{self.id}) {self.marca}; {self.cor}; {self.tamanho}"
@@ -29,9 +26,6 @@ class Pessoa(db.Model):
     nome = db.Column(db.String(254))
     idade = db.Column(db.Integer)
 
-    armario_pessoa = db.relationship("Armario",
-                                     back_populates="pessoa_armario")
-
 
     def __str__(self):
         return f"{self.id}) {self.nome}; {self.idade}"
@@ -40,8 +34,8 @@ class Pessoa(db.Model):
     def json(self):
         return {
             "id": self.id,
-            "marca": self.nome,
-            "cor": self.idade
+            "nome": self.nome,
+            "idade": self.idade
         }
 
 
@@ -52,16 +46,16 @@ class Armario(db.Model):
     cor = db.Column(db.String(254))
 
     pessoa_id = db.Column(db.ForeignKey(Pessoa.id), nullable=False)
-    pessoa_armario = db.relationship("Pessoa", back_populates="armario_pessoa")
+    pessoa = db.relationship("Pessoa")
 
     casaco_id = db.Column(db.ForeignKey(Casaco.id), nullable=False)
-    casaco_armario = db.relationship("Casaco", back_populates="armario_casaco")
+    casaco = db.relationship("Casaco")
 
 
     def __str__(self):
         return f"{self.id}) {self.capacidade}; {self.material}; {self.cor};\n"+\
-               f"{self.pessoa_armario};\n" +\
-               f"{self.casaco_armario}"
+               f"{self.pessoa};\n" +\
+               f"{self.casaco}"
 
 
     def json(self):
@@ -71,9 +65,9 @@ class Armario(db.Model):
             "material": self.material,
             "cor": self.cor,
             "pessoa_id": self.pessoa_id,
-            "pessoa_armario": self.pessoa_armario,
+            "pessoa": self.pessoa.json(),
             "casaco_id": self.casaco_id,
-            "casaco_armario": self.casaco_armario
+            "casaco": self.casaco.json()
         }
 
 
@@ -90,8 +84,8 @@ if __name__ == "__main__":
     pessoa1 = Pessoa(nome="Robson", idade=17)
     db.session.add(pessoa1)
 
-    armario1 = Armario(capacidade=50, material="branco", cor="Marrom",
-                       pessoa_armario=pessoa1, casaco_armario=casaco1)
+    armario1 = Armario(capacidade=50, material="Alumínio", cor="Marrom",
+                       pessoa=pessoa1, casaco=casaco1)
     db.session.add(armario1)
 
     db.session.commit()

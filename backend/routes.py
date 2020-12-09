@@ -1,5 +1,5 @@
 from config import *
-from model import Casaco
+from model import Casaco, Pessoa, Armario
 
 @app.route("/")
 def inicio():
@@ -25,7 +25,7 @@ def incluir_casaco():
         db.session.commit()
 
     except Exception as e:
-        
+
         resposta = jsonify({"resultado": "error", "detalhes": str(e)})
 
     resposta.headers.add("Access-Control-Allow-Origin", "*")
@@ -42,9 +42,26 @@ def excluir_casaco(id_casaco):
         db.session.commit()
 
     except Exception as e:
-        
+
         resposta = jsonify({"resultado": "error", "detalhes": str(e)})
 
     resposta.headers.add("Access-Control-Allow-Origin", "*")
 
     return resposta
+
+@app.route("/listar_pessoas")
+def listar_pessoas():
+    pessoas = db.session.query(Pessoa).all()
+    pessoas_em_json = [ pessoa.json() for pessoa in pessoas ]
+    resultado = jsonify(pessoas_em_json)
+    print(pessoas_em_json)
+    resultado.headers.add("Access-Control-Allow-Origin", "*")
+    return resultado
+
+@app.route("/listar_armarios")
+def listar_armarios():
+    armarios = db.session.query(Armario).all()
+    armarios_em_json = [ armario.json() for armario in armarios ]
+    resultado = jsonify(armarios_em_json)
+    resultado.headers.add("Access-Control-Allow-Origin", "*")
+    return resultado
